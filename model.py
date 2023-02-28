@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import transformers
-from transformers import AutoModel, AutoTokenizer
+from transformers import AutoModel
 
 class Seq2SeqModel(nn.Module):
     def __init__(self, encoder_model_name, decoder_model_name, output_size, device):
