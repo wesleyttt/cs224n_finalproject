@@ -4,7 +4,7 @@ from transformers import AutoConfig
 
 class LyricsDataset(torch.utils.data.Dataset):
     def __init__(self):
-        # TODO: integrate our genius dataset
+        # TODO: integrate our genius dataset and process the data
         self.input_sequences = None
         self.output_sequences = None
         self.tokenizer = AutoConfig.from_pretrained('bert-base-uncased')
