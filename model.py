@@ -12,10 +12,8 @@ class Seq2SeqModel(nn.Module):
         config.add_cross_attention = True
         self.decoder = RobertaForCausalLM.from_pretrained("roberta-base", config=config)
         self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-        # self.linear = nn.Linear(self.tokenizer.vocab_size, self.decoder.config.hidden_size)
-        self.linear = nn.Linear(self.decoder.config.vocab_size, self.batch_size * max_len)
 
-    def forward(self, input_ids, attention_mask, decoder_input_ids):
+    def forward(self, input_ids, decoder_input_ids):
         encoder_output = self.encoder(input_ids)[0]
         decoder_output = self.decoder(decoder_input_ids, encoder_hidden_states=encoder_output)
         return decoder_output
