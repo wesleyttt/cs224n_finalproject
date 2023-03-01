@@ -20,3 +20,4 @@ for line in src:
         continue
 
     dest.write(json.dumps(processed))
+    dest.write('\n')
