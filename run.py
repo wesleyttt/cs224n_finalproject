@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
-import json
 from transformers import RobertaTokenizer
 from sklearn.model_selection import train_test_split
 
@@ -9,9 +8,6 @@ from model import Seq2SeqModel
 from data_processing import read_data
 from lyricsdataset import LyricsDataset
 
-# replace these with strings of our desired HF transformer
-encoder = None
-decoder = None
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 model_save_path = "model.params"
 
@@ -27,37 +23,45 @@ test_dataloader = torch.utils.data.DataLoader(test_dataset, batch_size=32)
 model = Seq2SeqModel("roberta-base")
 model = model.to(device)
 tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
-criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
+criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id).cuda() if torch.cuda.is_available() else nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
+
 def train():
-    epochs = 10
-    for epoch in tqdm(range(epochs)):
+    epochs = 75
+    for epoch in range(epochs):
         running_loss = 0.0
-        for batch_idx, (input_ids, attention_mask, output_ids) in tqdm(enumerate(train_dataloader)):
+        pbar = tqdm(enumerate(train_dataloader), total=len(train_dataloader))
+        losses = []
+        for batch_idx, (input_ids, output_ids) in pbar:
             input_ids = input_ids.to(device)
-            attention_mask = attention_mask.to(device)
             output_ids = output_ids.to(device)
 
             # Set gradients to zero
             optimizer.zero_grad()
 
             # Forward pass
-            outputs = model(input_ids=input_ids, attention_mask=attention_mask, decoder_input_ids=output_ids[:, :-1])[0]
+            outputs = model(input_ids=input_ids, decoder_input_ids=output_ids[:, :-1])[0]
 
             # Compute loss
             loss = criterion(outputs.view(-1, outputs.size(-1)), output_ids[:, 1:].contiguous().view(-1))
+            loss = loss.mean()
+            losses.append(loss.item())
 
             # Backward pass and optimize
             loss.backward()
             optimizer.step()
 
             running_loss += loss.item()
+            pbar.set_description(f"epoch {epoch + 1} iter {batch_idx}: train loss {loss.item():.5f}.")
 
         # Print statistics
         print('Epoch [%d]/[%d]\tTraining Loss: %.3f' % (epoch + 1, epochs, running_loss / len(train_dataloader)))
 
-    model.save(model_save_path)
+        # save progress for every epoch
+        torch.save(model.state_dict(), model_save_path)
+
+    torch.save(model.state_dict(), model_save_path)
     torch.save(optimizer.state_dict(), model_save_path + '.optim')
 
 
