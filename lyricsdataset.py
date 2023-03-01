@@ -3,7 +3,7 @@ import torch.nn as nn
 from transformers import AutoConfig
 
 class LyricsDataset(torch.utils.data.Dataset):
-    def __init__(self):
+    def __init__(self, input_sequences, output_sequences):
         # TODO: integrate our genius dataset and process the data
         self.input_sequences = None
         self.output_sequences = None
