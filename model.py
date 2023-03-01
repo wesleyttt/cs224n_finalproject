@@ -1,19 +1,21 @@
-import torch
 import torch.nn as nn
-import transformers
-from transformers import AutoModel, AutoModelForCausalLM
+from transformers import RobertaModel, RobertaTokenizer, AutoConfig, RobertaForCausalLM
 
 class Seq2SeqModel(nn.Module):
-    def __init__(self, encoder, decoder, max_len=512):
+    def __init__(self, model, max_len=127):
         super(Seq2SeqModel, self).__init__()
         self.max_len = max_len
-        self.tokenizer = AutoModel.from_pretrained('bert-base-uncased')
-        self.encoder = AutoModel.from_pretrained(encoder)
-        self.decoder = AutoModelForCausalLM.from_pretrained(decoder)
-        self.linear = nn.Linear(self.decoder.config.hidden_size, self.tokenizer.vocab_size)
+        self.batch_size = 32
+        self.encoder = RobertaModel.from_pretrained(model)
+        config = AutoConfig.from_pretrained("roberta-base")
+        config.is_decoder = True
+        config.add_cross_attention = True
+        self.decoder = RobertaForCausalLM.from_pretrained("roberta-base", config=config)
+        self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
+        # self.linear = nn.Linear(self.tokenizer.vocab_size, self.decoder.config.hidden_size)
+        self.linear = nn.Linear(self.decoder.config.vocab_size, self.batch_size * max_len)
 
     def forward(self, input_ids, attention_mask, decoder_input_ids):
-        encoder_output = self.encoder(input_ids, attention_mask=attention_mask)[0]
-        decoder_output = self.decoder(decoder_input_ids, encoder_output)
-        logits = self.linear(decoder_output)
-        return logits
+        encoder_output = self.encoder(input_ids)[0]
+        decoder_output = self.decoder(decoder_input_ids, encoder_hidden_states=encoder_output)
+        return decoder_output

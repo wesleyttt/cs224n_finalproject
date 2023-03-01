@@ -4,7 +4,7 @@ import json
 When we put the code into the VM, we need to put the processed_annotations.json
 file in the data_processing folder
 """
-PATH = './processed_annotations.json'
+PATH = 'data_processing/processed_annotations.json'
 
 
 def read_data() -> tuple[list[str], list[str]]:
