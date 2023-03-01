@@ -3,7 +3,6 @@ from transformers import RobertaTokenizer
 
 class LyricsDataset(torch.utils.data.Dataset):
     def __init__(self, input_sequences, output_sequences):
-        # TODO: integrate our genius dataset and process the data
         self.input_sequences = input_sequences
         self.output_sequences = output_sequences
         self.tokenizer = RobertaTokenizer.from_pretrained("roberta-base")
@@ -19,8 +18,7 @@ class LyricsDataset(torch.utils.data.Dataset):
         encoded_output = self.tokenizer.encode_plus(output_sequence, padding='max_length', max_length=128, truncation=True, return_tensors='pt')
 
         input_ids = encoded_input['input_ids'].squeeze()
-        attention_mask = encoded_input['attention_mask'].squeeze()
         output_ids = encoded_output['input_ids'].squeeze()
 
 
-        return input_ids, attention_mask, output_ids
+        return input_ids, output_ids
