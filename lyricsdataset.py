@@ -7,6 +7,7 @@ class LyricsDataset(torch.utils.data.Dataset):
         # TODO: integrate our genius dataset and process the data
         self.input_sequences = None
         self.output_sequences = None
+        # TODO: replace with appropriate tokenizer for model
         self.tokenizer = AutoConfig.from_pretrained('bert-base-uncased')
 
     def __len__(self):
