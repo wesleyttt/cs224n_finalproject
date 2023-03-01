@@ -37,5 +37,3 @@ def request(phrase: str) -> str:
     return page
 
 
-if __name__ == '__main__':
-    print(request("Bengals"))
