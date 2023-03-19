@@ -32,7 +32,8 @@ def request(phrase: str, context: str) -> str:
     page_key = list(info.keys())[0]
 
     if 'missing' in info[page_key]:
-        page = 'ERROR: could not find ' + phrase + '.'
+        print('ERROR: could not find ', phrase, '.')
+        return ""
     elif '(disambiguation)' in info[page_key]['title']:
         page = disambiguation(phrase, context)
     elif 'refer to' in info[page_key]['extract']:

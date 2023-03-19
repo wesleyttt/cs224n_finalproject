@@ -2,12 +2,18 @@ from wiki_api import request
 from wiki_sentence_rank import most_similar
 from wiki_util import separate_paragraph
 
-sample_lyric = "Yellow Ferrari like Pikachu"
+import sys
+sys.path.insert(0, '../ner')
 
-named_entity = 'Pikachu'
+from ner import get_entities
 
-requested = request(named_entity, sample_lyric)
-split_p = separate_paragraph(requested)
+sample_lyric = "Yellow Ferrari like Pikachu. See both sides like Chanel, see on both sides like Chanel"
 
-print(requested)
-print(most_similar(split_p, sample_lyric))
+named_entities = get_entities(sample_lyric)
+
+for ent in named_entities:
+    requested = request(ent, sample_lyric)
+    split_p = separate_paragraph(requested)
+
+    print(requested)
+    print(most_similar(split_p, sample_lyric))
